@@ -108,5 +108,7 @@ public class BayesiaNetwork {
 
     public String toString(){ return this.variables.values().stream().map(BayesNode::toString).reduce("", (s1, s2) -> s1 + s2); }
 
-    //TODO: Algo Factory / Abstract class ( research )
+    // interface methods
+    public int translate(String name) throws KeyException { return this.dict.translate(name); }
+    public BayesNode getVariable(String name) throws KeyException { return this.variables.get(this.translate(name)); }
 }
