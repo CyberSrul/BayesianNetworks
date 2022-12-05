@@ -2,6 +2,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 class BayesNodeTest {
 
     static BayesNode A, B, C;
@@ -49,6 +51,8 @@ class BayesNodeTest {
 
         Assertions.assertEquals(B, A.getKid(1));
         Assertions.assertEquals(C, A.getKid(2));
+        // no such kid
+        Assertions.assertNull(A.getKid(3));
     }
 
     @Test
@@ -56,6 +60,15 @@ class BayesNodeTest {
 
         Assertions.assertEquals(A, B.getParent(0));
         Assertions.assertEquals(A, C.getParent(0));
+        // no such parent
+        Assertions.assertNull(B.getParent(2));
+    }
+
+    @Test
+    void AreParents(){
+
+        Assertions.assertTrue(B.AreParents(List.of(B, A)));
+        Assertions.assertTrue(C.AreParents(List.of(C, A)));
     }
 
     @Test
@@ -79,7 +92,7 @@ class BayesNodeTest {
     }
 
     @Test
-    void setCPT() {
+    void setCPT_fetch() {
 
         Assertions.assertDoesNotThrow(() -> A.setCPT(new double[]{0.1, 0.9}));
         System.out.println(A);
@@ -87,5 +100,10 @@ class BayesNodeTest {
         System.out.println(B);
         Assertions.assertDoesNotThrow(() -> C.setCPT(new double[]{0.33, 0.33, 0.33, 0.2, 0.6, 0.2}));
         System.out.println(C);
+
+        Assertions.assertEquals(0.2, C.fetch(new int[]{2, 1}));
+        Assertions.assertEquals(0.6, C.fetch(new int[]{1, 1}));
+        Assertions.assertEquals(0.2, B.fetch(new int[]{0, 0}));
+        Assertions.assertEquals(0.9, A.fetch(new int[]{1}));
     }
 }

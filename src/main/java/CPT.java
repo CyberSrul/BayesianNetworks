@@ -153,6 +153,25 @@ public class CPT {
         return res;
     }
 
+    public double fetch(List<BayesNode> variables, int[] values){
+
+        if (! this.variables.get(0).AreParents(variables)){ throw new InputMismatchException("these arent the variables of the cpt"); }
+
+        int[] indexes = this.variables.stream().mapToInt(variables::indexOf).toArray();
+
+        int val_ind, var_ind;
+        for (val_ind = 0; val_ind < this.probabilities.length; ++val_ind){
+
+            boolean match = true;
+            for (var_ind = 0; var_ind < values.length; ++var_ind){
+
+                if (this.values[var_ind][val_ind] != values[indexes[var_ind]]) { match = false; break; }
+            }
+            if (match) return this.probabilities[val_ind];
+        }
+        return 0;
+    }
+
     public String toString(){
 
         StringBuilder view = new StringBuilder(Arrays.toString(this.variables.stream().mapToInt(BayesNode::getName).toArray()) + "\n\n");

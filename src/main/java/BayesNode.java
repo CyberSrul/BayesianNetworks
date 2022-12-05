@@ -2,6 +2,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /* A data oriented class representing a node in a Bayesian Network (a random variable) */
 
@@ -49,15 +50,28 @@ public class BayesNode {
     public BayesNode getKid(int name){ return this.kids.get(name); }
     public BayesNode getParent(int name){ return this.parents.get(name); }
 
+    // these are the parents of this BayesNode no one is missing all of them belong
+    public boolean AreParents(List<BayesNode> variables){
+
+        List<BayesNode> MyVariables = new LinkedList<>(this.parents.values());
+        MyVariables.add(0, this);
+        return variables.stream().map(BayesNode::getName).sorted().collect(Collectors.toList()).equals(MyVariables.stream().map(BayesNode::getName).sorted().collect(Collectors.toList()));
+    }
+
     public void setCPT(double[] probabilities){
 
         List<BayesNode> variables = new LinkedList<>(this.parents.values());
         variables.add(0, this);
         this.cpt = new CPT(variables, probabilities);
+    }
 
+    // get value of specific row in cpt
+    public double fetch(int[] values){
+
+        List<BayesNode> variables = new LinkedList<>(this.parents.values());
+        variables.add(0, this);
+        return this.cpt.fetch(variables, values);
     }
 
     public String toString(){ return "BayesNode " + this.name + "\n" + this.cpt.toString() + "\n"; }
-
-    //ToDo: get iterator for net, factor, simple queries
 }
