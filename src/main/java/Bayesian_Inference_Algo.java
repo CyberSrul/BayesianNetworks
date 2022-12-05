@@ -5,14 +5,7 @@ public abstract class Bayesian_Inference_Algo {
 
     private BayesiaNetwork network;
 
-    public Bayesian_Inference_Algo(String dir) throws KeyException { this.network = new BayesiaNetwork(dir);}
-
-    public void switchNetwork(String dir) throws KeyException {
-
-        this.network = new BayesiaNetwork(dir);
-        // the bayesian network instance can be quit heavy so prompting the garbage collector
-        System.gc();
-    }
+    public Bayesian_Inference_Algo(BayesiaNetwork network) throws KeyException { this.network = network; }
 
     /** Expected query format P(Q=q|E1=e1, E2=e2,..., Ek=ek) **/
     public String Query(String query) {

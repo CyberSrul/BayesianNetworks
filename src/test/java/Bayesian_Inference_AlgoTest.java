@@ -2,7 +2,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.security.KeyException;
-import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -14,13 +13,9 @@ class Bayesian_Inference_AlgoTest {
     @BeforeEach
     void setUp() throws KeyException {
 
-        naive = new Naive_Bayesian_Inference(dir);
-        VE = new VariableElimination(dir);
-        best = new OptimisedVE(dir);
-    }
-
-    @Test
-    void switchNetwork() {
+        naive = new Naive_Bayesian_Inference(new BayesiaNetwork());
+        VE = new VariableElimination(new BayesiaNetwork());
+        best = new OptimisedVE(new BayesiaNetwork());
     }
 
     @Test
