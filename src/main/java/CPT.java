@@ -11,16 +11,39 @@ import java.util.stream.Stream;
 
 public class CPT {
 
-    final List<BayesNode> variables;
-    final int[][] values;
-    final double[] probabilities;
+    private final List<BayesNode> variables;
+    private final int[][] values;
+    private final double[] probabilities;
 
+    /* interface methods */
+    public boolean refersTo(BayesNode variable){ return this.variables.contains(variable); }
 
+    // get value of specific row
+    public double fetch(List<BayesNode> variables, int[] values){
+
+        if (! this.variables.get(0).AreParents(variables)){ throw new InputMismatchException("these arent the variables of the cpt"); }
+
+        int[] indexes = this.variables.stream().mapToInt(variables::indexOf).toArray();
+
+        int val_ind, var_ind;
+        for (val_ind = 0; val_ind < this.probabilities.length; ++val_ind){
+
+            boolean match = true;
+            for (var_ind = 0; var_ind < values.length; ++var_ind){
+
+                if (this.values[var_ind][val_ind] != values[indexes[var_ind]]) { match = false; break; }
+            }
+            if (match) return this.probabilities[val_ind];
+        }
+        return 0;
+    }
+
+    /* operators */
     public CPT(List<BayesNode> variables, double[] probabilities){
 
         if (variables.size() == 0){ throw new InputMismatchException("variables list can not be empty"); }
 
-        this.variables = variables;
+        this.variables = List.copyOf(variables);
         this.probabilities = Arrays.copyOf(probabilities, probabilities.length);
 
         // sizes of variables possible values ranges
@@ -49,7 +72,12 @@ public class CPT {
         }
     }
 
-    public CPT join (CPT other){ return new CPT(this, other); }
+    public CPT join (CPT other){
+
+        if (other == null) return new CPT(this.variables, this.probabilities);
+
+        return new CPT(this, other);
+    }
 
     private CPT(CPT cpt1, CPT cpt2){
 
@@ -66,7 +94,9 @@ public class CPT {
         int[] cpt1_intersect_indexes = intersect.stream().mapToInt(cpt1.variables::indexOf).toArray();
         int[] cpt2_intersect_indexes = intersect.stream().mapToInt(cpt2.variables::indexOf).toArray();
         int[] cpt2_vars_indexes = cpt2.variables.stream().mapToInt(this.variables::indexOf).toArray();
-        int[] diff_indexes = diff.stream().mapToInt(this.variables::indexOf).toArray();
+        int[] this_diff_indexes =           diff.stream().mapToInt(this.variables::indexOf).toArray();
+        int[] cpt1_diff_indexes =           diff.stream().mapToInt(cpt1.variables::indexOf).toArray();
+
         int prob_ind = 0, val1_ind, val2_ind, var_ind;
 
         for (val1_ind = 0; val1_ind < cpt1.probabilities.length; ++val1_ind){
@@ -82,12 +112,13 @@ public class CPT {
                     // probability
                     this.probabilities[prob_ind] = cpt1.probabilities[val1_ind] * cpt2.probabilities[val2_ind];
                     // the variables state
-                    for (var_ind = 0; var_ind < cpt2_vars_indexes.length; ++var_ind){
+                    for (var_ind = 0; var_ind < cpt2.values.length; ++var_ind){
                         this.values[cpt2_vars_indexes[var_ind]][prob_ind] = cpt2.values[var_ind][val2_ind];
                     }
-                    for (var_ind = 0; var_ind < diff_indexes.length; ++var_ind){
-                        this.values[diff_indexes[var_ind]][prob_ind] = cpt1.values[var_ind][val1_ind];
+                    for (var_ind = 0; var_ind < this_diff_indexes.length; ++var_ind){
+                        this.values[this_diff_indexes[var_ind]][prob_ind] = cpt1.values[cpt1_diff_indexes[var_ind]][val1_ind];
                     }
+                    // next row in new CPT (the return)
                     ++prob_ind;
                 }
             }
@@ -153,24 +184,7 @@ public class CPT {
         return res;
     }
 
-    public double fetch(List<BayesNode> variables, int[] values){
-
-        if (! this.variables.get(0).AreParents(variables)){ throw new InputMismatchException("these arent the variables of the cpt"); }
-
-        int[] indexes = this.variables.stream().mapToInt(variables::indexOf).toArray();
-
-        int val_ind, var_ind;
-        for (val_ind = 0; val_ind < this.probabilities.length; ++val_ind){
-
-            boolean match = true;
-            for (var_ind = 0; var_ind < values.length; ++var_ind){
-
-                if (this.values[var_ind][val_ind] != values[indexes[var_ind]]) { match = false; break; }
-            }
-            if (match) return this.probabilities[val_ind];
-        }
-        return 0;
-    }
+    public double totalSum(){ return Arrays.stream(this.probabilities).sum(); }
 
     public String toString(){
 

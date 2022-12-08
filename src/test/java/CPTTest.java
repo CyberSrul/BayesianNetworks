@@ -33,6 +33,23 @@ class CPTTest {
     }
 
     @Test
+    void refersTo(){
+
+        Assertions.assertTrue(cpt1.refersTo(A) && cpt2.refersTo(A));
+        Assertions.assertTrue(cpt1.refersTo(B) && cpt2.refersTo(B));
+        Assertions.assertTrue(cpt1.refersTo(C) && ! cpt2.refersTo(C));
+        Assertions.assertTrue(cpt2.refersTo(D) && ! cpt1.refersTo(D));
+
+    }
+
+    @Test
+    void totalSum(){
+
+        Assertions.assertEquals(0.6, cpt1.totalSum(), 0.001);
+        Assertions.assertEquals(0.4, cpt2.totalSum(), 0.001);
+    }
+
+    @Test
     void factor() {
 
         Assertions.assertDoesNotThrow(() -> { factor = cpt1.factor(List.of(B), new int[]{1}); });
@@ -50,8 +67,10 @@ class CPTTest {
 
         Assertions.assertDoesNotThrow(() -> { factor = cpt1.join(cpt2); });
         System.out.println(factor);
-        Assertions.assertDoesNotThrow(() -> { factor = cpt1.factor(List.of(A, B), new int[]{0, 0}).join(cpt1); });
-        System.out.println(factor);
+        //Assertions.assertDoesNotThrow(() -> { factor = cpt1.factor(List.of(A, B), new int[]{0, 0}).join(cpt1); });
+        //System.out.println(factor);
+        //Assertions.assertDoesNotThrow(() -> { factor = cpt1.join(null); });
+        //System.out.println(factor);
     }
 
     @Test
