@@ -10,6 +10,7 @@ import java.util.HashMap;
 
 import java.security.KeyException;
 import java.util.InputMismatchException;
+import java.util.Iterator;
 
 /**
  * A Bayesian Network is a DAG that represents the joint probability distribution
@@ -22,10 +23,10 @@ import java.util.InputMismatchException;
  * <p>
  * The class implements the singleton design pattern because an instance can be very heavy,
  * and it's absurd to give any running thread that executes an algorithm on a bayesian network
- * its own instance because this is a static implementation, in the sense that it doesn't have setters
+ * its own instance because this is a static implementation, in the sense that it doesn't have setters.
  * **/
 
-public class BayesiaNetwork {
+public class BayesiaNetwork implements Iterable<BayesNode>{
 
     private static Dictionary dict;                          // giving translation to each name
     private static HashMap<Integer, BayesNode> variables;    // the actual nodes
@@ -36,7 +37,7 @@ public class BayesiaNetwork {
     public void switchNetwork(String dir) throws KeyException {
 
         // these lists will hold all the info
-        NodeList variables = null, CPTs = null;
+        NodeList nodes = null, CPTs = null;
         // parsing xml
         try{
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -44,25 +45,25 @@ public class BayesiaNetwork {
             Document doc = db.parse(dir);
             doc.getDocumentElement().normalize();
 
-            variables = doc.getElementsByTagName("VARIABLE");
+            nodes = doc.getElementsByTagName("VARIABLE");
             CPTs = doc.getElementsByTagName("DEFINITION");
         }
         catch (Exception e){
             e.printStackTrace();
         }
-        if (variables == null || CPTs == null) { throw new InputMismatchException("something is wrong with the xml format"); }
+        if (nodes == null || CPTs == null) { throw new InputMismatchException("something is wrong with the xml format"); }
 
         // now we can get started
         dict = new Dictionary();
-        this.variables = new HashMap<>();
+        variables = new HashMap<>();
         // the bayesian network instance can be quit heavy so prompting the garbage collector
         System.gc();
 
-        parse(variables, CPTs);
+        parse(nodes, CPTs);
     }
 
     // iterative method for parsing the xml and deploying the data in the Network
-    private void parse(NodeList variables, NodeList CPTs) throws KeyException {
+    private void parse(NodeList nodes, NodeList CPTs) throws KeyException {
 
         int var_ind, val_ind;
         String name, value;          // name and value of variable
@@ -71,9 +72,9 @@ public class BayesiaNetwork {
         BayesNode variable, parent;
         double[] probabilities;
 
-        for (var_ind = 0; var_ind < variables.getLength(); ++var_ind) {
+        for (var_ind = 0; var_ind < nodes.getLength(); ++var_ind) {
 
-            element = (Element) variables.item(var_ind);
+            element = (Element) nodes.item(var_ind);
 
             name = element.getElementsByTagName("NAME").item(0).getTextContent();
             dict.log(name);
@@ -87,20 +88,20 @@ public class BayesiaNetwork {
                 values[val_ind] = dict.translate(value);
             }
 
-            this.variables.put(dict.translate(name), new BayesNode(dict.translate(name), values));
+            variables.put(dict.translate(name), new BayesNode(dict.translate(name), values));
         }
         // now the CPTs and consequently the edges
-        for (var_ind = 0; var_ind < variables.getLength(); ++var_ind) {
+        for (var_ind = 0; var_ind < nodes.getLength(); ++var_ind) {
 
             element = (Element) CPTs.item(var_ind);
             // get relevant variable by name
-            variable = this.variables.get(dict.translate(element.getElementsByTagName("FOR").item(0).getTextContent()));
+            variable = variables.get(dict.translate(element.getElementsByTagName("FOR").item(0).getTextContent()));
 
             NodeList parents = element.getElementsByTagName("GIVEN");
             // edges
-            for (val_ind = 0; val_ind < parents.getLength(); ++val_ind) {
+            for (val_ind = parents.getLength() -1; val_ind >= 0; --val_ind) {
 
-                parent = this.variables.get(dict.translate(parents.item(val_ind).getTextContent()));
+                parent = variables.get(dict.translate(parents.item(val_ind).getTextContent()));
                 variable.addParent(parent);
                 parent.addKid(variable);
             }
@@ -115,6 +116,11 @@ public class BayesiaNetwork {
     // interface methods
     public int translate(String name) throws KeyException { return dict.translate(name); }
     public BayesNode getVariable(String name) throws KeyException { return variables.get(this.translate(name)); }
+    public Iterator<String> getNames(){ return dict.iterator(); }
 
-    //TODO: rename variables too confusing
+    // unless the input xml is formatted incorrectly, this is topologically ordered
+    @Override
+    public Iterator<BayesNode> iterator() {
+        return variables.values().iterator();
+    }
 }

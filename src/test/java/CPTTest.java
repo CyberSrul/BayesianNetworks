@@ -60,6 +60,8 @@ class CPTTest {
         System.out.println(factor);
         Assertions.assertDoesNotThrow(() -> { factor = cpt2.factor(List.of(B, A), new int[]{1, 1}); });
         System.out.println(factor);
+
+        Assertions.assertThrows(InputMismatchException.class, () -> cpt1.factor(List.of(D), new int[]{1}));
     }
 
     @Test
@@ -67,10 +69,10 @@ class CPTTest {
 
         Assertions.assertDoesNotThrow(() -> { factor = cpt1.join(cpt2); });
         System.out.println(factor);
-        //Assertions.assertDoesNotThrow(() -> { factor = cpt1.factor(List.of(A, B), new int[]{0, 0}).join(cpt1); });
-        //System.out.println(factor);
-        //Assertions.assertDoesNotThrow(() -> { factor = cpt1.join(null); });
-        //System.out.println(factor);
+        Assertions.assertDoesNotThrow(() -> { factor = cpt1.factor(List.of(A, B), new int[]{0, 0}).join(cpt1); });
+        System.out.println(factor);
+        Assertions.assertDoesNotThrow(() -> { factor = cpt1.join(null); });
+        System.out.println(factor);
     }
 
     @Test

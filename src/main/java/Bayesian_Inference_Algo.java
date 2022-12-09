@@ -1,10 +1,8 @@
 import java.security.KeyException;
-import java.util.Arrays;
 import java.util.InputMismatchException;
 
-import java.util.stream.Collectors;
+import java.util.Arrays;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 /**
  * An abstract class for implementing different Bayesian Inference algorithms on top a Bayesian Network.
@@ -16,7 +14,7 @@ import java.util.stream.Stream;
 
 public abstract class Bayesian_Inference_Algo {
 
-    private final BayesiaNetwork network;
+    protected final BayesiaNetwork network;
 
     public Bayesian_Inference_Algo(BayesiaNetwork network) { this.network = network; }
 
@@ -50,7 +48,7 @@ public abstract class Bayesian_Inference_Algo {
                 }
             }
             // if the evidence are the query's parents
-            if (query_variable.AreParents(Stream.concat(Arrays.stream(evidence_variables), Stream.of(query_variable)).collect(Collectors.toList()))){
+            if (query_variable.AreParents(Arrays.asList(evidence_variables))){
                 // then I don't need to call any algorithm
                 return query_variable.fetch(IntStream.concat(IntStream.of(query_value), Arrays.stream(evidence_values)).toArray());
             }
@@ -62,6 +60,6 @@ public abstract class Bayesian_Inference_Algo {
         }
     }
 
-    protected abstract double compute(BayesNode query_variable, int query_value, BayesNode[] evidence_variables, int[] evidence_values);
+    protected abstract double compute(BayesNode query_variable, int query_value, BayesNode[] evidence_variables, int[] evidence_values) throws KeyException;
 }
 

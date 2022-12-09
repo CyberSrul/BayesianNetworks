@@ -1,7 +1,4 @@
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /* A data oriented class representing a node in a Bayesian Network (a random variable) */
@@ -9,16 +6,16 @@ import java.util.stream.Collectors;
 public class BayesNode {
 
     private final int name;
-    private final int[] range;                                  // possible values of variable
-    private final HashMap<Integer, BayesNode> parents, kids;    // name -> node
+    private final int[] range;                    // possible values of variable
+    private final List<BayesNode> parents, kids;
     private CPT cpt;
 
     public BayesNode(int name, int[] values){
 
         this.name = name;
         this.range = Arrays.copyOf(values, values.length);
-        this.parents = new HashMap<>();
-        this.kids = new HashMap<>();
+        this.parents = new LinkedList<>();
+        this.kids = new LinkedList<>();
         this.cpt = null;
     }
 
@@ -28,39 +25,38 @@ public class BayesNode {
 
     public void addKid(BayesNode kid){
 
-        if (this.kids.containsKey(kid.getName())){
-            throw new RuntimeException("bayes node " + this.getName() + "already has a kid named " + kid.getName());
+        if (this.kids.contains(kid)){
+            throw new InputMismatchException("bayes node " + this.getName() + "already has a kid named " + kid.getName());
         }
-        if (this.parents.containsKey(kid.getName())){
+        if (this.parents.contains(kid)){
             throw new RuntimeException("Bayesian Networks are Acyclic");
         }
-        this.kids.put(kid.getName(), kid);
+        this.kids.add(kid);
     }
     public void addParent(BayesNode parent){
 
-        if (this.parents.containsKey(parent.getName())){
-            throw new RuntimeException("bayes node " + this.getName() + "already has a parent named " + parent.getName());
+        if (this.parents.contains(parent)){
+            throw new InputMismatchException("bayes node " + this.getName() + "already has a parent named " + parent.getName());
         }
-        if (this.kids.containsKey(parent.getName())){
+        if (this.kids.contains(parent)){
             throw new RuntimeException("Bayesian Networks are Acyclic");
         }
-        this.parents.put(parent.getName(), parent);
+        this.parents.add(parent);
     }
 
-    public BayesNode getKid(int name){ return this.kids.get(name); }
-    public BayesNode getParent(int name){ return this.parents.get(name); }
+    public BayesNode getKid(int name){ return this.kids.stream().filter((var) -> var.getName() == name).findAny().orElse(null); }
+    public BayesNode getParent(int name){ return this.parents.stream().filter((var) -> var.getName() == name).findAny().orElse(null); }
+    public CPT getCPT(){ return this.cpt; }
 
-    // these are the parents of this BayesNode no one is missing all of them belong
+    // these are the parents of this BayesNode no one is missing, all of them belong.
     public boolean AreParents(List<BayesNode> variables){
-
-        List<BayesNode> MyVariables = new LinkedList<>(this.parents.values());
-        MyVariables.add(0, this);
-        return variables.stream().map(BayesNode::getName).sorted().collect(Collectors.toList()).equals(MyVariables.stream().map(BayesNode::getName).sorted().collect(Collectors.toList()));
+        return variables.stream().map(BayesNode::getName).sorted().collect(Collectors.toList())
+               .equals(List.copyOf(this.parents).stream().map(BayesNode::getName).sorted().collect(Collectors.toList()));
     }
 
     public void setCPT(double[] probabilities){
 
-        List<BayesNode> variables = new LinkedList<>(this.parents.values());
+        List<BayesNode> variables = new ArrayList<>(List.copyOf(this.parents));
         variables.add(0, this);
         this.cpt = new CPT(variables, probabilities);
     }
@@ -68,7 +64,7 @@ public class BayesNode {
     // get value of specific row in cpt
     public double fetch(int[] values){
 
-        List<BayesNode> variables = new LinkedList<>(this.parents.values());
+        List<BayesNode> variables = new ArrayList<>(List.copyOf(this.parents));
         variables.add(0, this);
         return this.cpt.fetch(variables, values);
     }

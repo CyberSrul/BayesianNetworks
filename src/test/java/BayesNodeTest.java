@@ -67,8 +67,8 @@ class BayesNodeTest {
     @Test
     void AreParents(){
 
-        Assertions.assertTrue(B.AreParents(List.of(B, A)));
-        Assertions.assertTrue(C.AreParents(List.of(C, A)));
+        Assertions.assertTrue(B.AreParents(List.of(A)));
+        Assertions.assertTrue(C.AreParents(List.of(A)));
     }
 
     @Test

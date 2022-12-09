@@ -16,12 +16,17 @@ public class CPT {
     private final double[] probabilities;
 
     /* interface methods */
+
+    // the CPT holds values that vary with this one
     public boolean refersTo(BayesNode variable){ return this.variables.contains(variable); }
+
+    // this tables share of the sample spase (probability wise)
+    public double totalSum(){ return Arrays.stream(this.probabilities).sum(); }
 
     // get value of specific row
     public double fetch(List<BayesNode> variables, int[] values){
 
-        if (! this.variables.get(0).AreParents(variables)){ throw new InputMismatchException("these arent the variables of the cpt"); }
+        if (variables.stream().filter(this.variables::contains).count() != variables.size()){ throw new InputMismatchException("these arent the variables of the cpt"); }
 
         int[] indexes = this.variables.stream().mapToInt(variables::indexOf).toArray();
 
@@ -38,7 +43,8 @@ public class CPT {
         return 0;
     }
 
-    /* operators */
+    /* operators and builders */
+
     public CPT(List<BayesNode> variables, double[] probabilities){
 
         if (variables.size() == 0){ throw new InputMismatchException("variables list can not be empty"); }
@@ -90,10 +96,12 @@ public class CPT {
         this.probabilities = new double[size];
         this.values = new int[this.variables.size()][size];
 
-        // the join operation
+        /* the join operation */
+
+        // indexes so we'll not get lost
         int[] cpt1_intersect_indexes = intersect.stream().mapToInt(cpt1.variables::indexOf).toArray();
         int[] cpt2_intersect_indexes = intersect.stream().mapToInt(cpt2.variables::indexOf).toArray();
-        int[] cpt2_vars_indexes = cpt2.variables.stream().mapToInt(this.variables::indexOf).toArray();
+        int[] this_cpt2_indexes = cpt2.variables.stream().mapToInt(this.variables::indexOf).toArray();
         int[] this_diff_indexes =           diff.stream().mapToInt(this.variables::indexOf).toArray();
         int[] cpt1_diff_indexes =           diff.stream().mapToInt(cpt1.variables::indexOf).toArray();
 
@@ -113,7 +121,7 @@ public class CPT {
                     this.probabilities[prob_ind] = cpt1.probabilities[val1_ind] * cpt2.probabilities[val2_ind];
                     // the variables state
                     for (var_ind = 0; var_ind < cpt2.values.length; ++var_ind){
-                        this.values[cpt2_vars_indexes[var_ind]][prob_ind] = cpt2.values[var_ind][val2_ind];
+                        this.values[this_cpt2_indexes[var_ind]][prob_ind] = cpt2.values[var_ind][val2_ind];
                     }
                     for (var_ind = 0; var_ind < this_diff_indexes.length; ++var_ind){
                         this.values[this_diff_indexes[var_ind]][prob_ind] = cpt1.values[cpt1_diff_indexes[var_ind]][val1_ind];
@@ -127,10 +135,13 @@ public class CPT {
 
     public CPT factor(List<BayesNode> evidence_nodes, int[] evidence_values){
 
+        if (evidence_nodes.stream().filter(this.variables::contains).count() != evidence_nodes.size()){
+            throw new InputMismatchException("evidence are not relevant to this CPT");
+        }
+
         List<Integer> evidence_indexes = evidence_nodes.stream().map(this.variables::indexOf).collect(Collectors.toList());
         // a factor of how much space is saved by the evidence
         int evidence_size = evidence_nodes.stream().mapToInt(BayesNode::getRangeSize).reduce(1, (x, y) -> x * y);
-        // allocating memory
         double[] probabilities = new double[this.probabilities.length / evidence_size];
 
         // searching the CPT for the right values
@@ -147,12 +158,23 @@ public class CPT {
             if (match){ probabilities[prob_ind] = this.probabilities[val_ind]; ++prob_ind; }
         }
         // finally returning a table of all relevant data (what's not evident)
+        if (probabilities.length == 1){ return new CPT(evidence_nodes.get(0), evidence_values[0], probabilities[0]); }
         return new CPT(this.variables.stream().filter((var) -> ! evidence_nodes.contains(var)).collect(Collectors.toList()), probabilities);
+    }
+
+    // A CPT that was reduced to one row
+    private CPT(BayesNode variable, int value, double probability){
+
+        this.variables = List.of(variable);
+        this.values = new int[1][1]; this.values[0][0] = value;
+        this.probabilities = new double[]{probability};
     }
 
     public CPT sum(BayesNode target){
 
         if (! this.variables.contains(target)){ throw new InputMismatchException("variable does not appear in the table"); }
+
+        if (this.probabilities.length == 1){ return this; }
 
         List<BayesNode> res_variables = List.copyOf(this.variables);
         res_variables = res_variables.stream().filter((var) -> var != target).collect(Collectors.toList());
@@ -184,7 +206,6 @@ public class CPT {
         return res;
     }
 
-    public double totalSum(){ return Arrays.stream(this.probabilities).sum(); }
 
     public String toString(){
 
