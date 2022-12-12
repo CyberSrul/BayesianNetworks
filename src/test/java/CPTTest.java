@@ -33,6 +33,13 @@ class CPTTest {
     }
 
     @Test
+    void getVariables(){
+
+        Assertions.assertTrue(List.of(A, B, C).equals(cpt1.getVariables()));
+        Assertions.assertTrue(List.of(B, A, D).equals(cpt2.getVariables()));
+    }
+
+    @Test
     void refersTo(){
 
         Assertions.assertTrue(cpt1.refersTo(A) && cpt2.refersTo(A));

@@ -17,6 +17,8 @@ public class CPT {
 
     /* interface methods */
 
+    public List<BayesNode> getVariables() { return List.copyOf(this.variables); }
+
     // the CPT holds values that vary with this one
     public boolean refersTo(BayesNode variable){ return this.variables.contains(variable); }
 

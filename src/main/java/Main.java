@@ -54,4 +54,4 @@ public class Main {
     }
 }
 
-//TODO: parse, txt based answers, complexity evaluations, join order heuristic, invoke, rounding format package, add bif_net fetch-method tests;
+//TODO: complexity evaluations, join order heuristic, add big_net fetch-method tests;

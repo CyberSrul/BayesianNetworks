@@ -61,4 +61,27 @@ public abstract class Bayesian_Inference_Algo {
     }
 
     protected abstract double compute(BayesNode query_variable, int query_value, BayesNode[] evidence_variables, int[] evidence_values) throws KeyException;
+
+    // method for evaluating the cost of a join operation between 2 given CPTs
+    // that is, how many multiplications
+    public int EvaluateJoin(CPT cpt1, CPT cpt2){
+
+        int cpt1_ranges = cpt1.getVariables().stream().mapToInt(BayesNode::getRangeSize).reduce(1, (x, y) -> x * y);
+        // value-ranges of the variables of cpt2 without those of cpt1
+        int cpt2_diff_ranges = cpt2.getVariables().stream().filter((var) -> ! cpt1.getVariables().contains(var)).mapToInt(BayesNode::getRangeSize).reduce(1, (x, y) -> x * y);
+
+        return cpt1_ranges * cpt2_diff_ranges;
+    }
+
+    // method for evaluating the cost of a sum operation on a given CPT
+    // that is, how many additions
+    public int EvaluateSum(CPT cpt, BayesNode eliminated){
+
+        if (! cpt.refersTo(eliminated)) throw new InputMismatchException("can't eliminate this variable the CPT does not refer to it");
+
+        return cpt.getVariables().stream().filter((var) -> var != eliminated).mapToInt(BayesNode::getRangeSize).reduce(1, (x, y) -> x * y)  *  (eliminated.getRangeSize() -1);
+    }
+
+
+    //TODO: incorporate cost evaluation, stream the factors
 }
