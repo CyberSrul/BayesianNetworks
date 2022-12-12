@@ -65,4 +65,6 @@ public class VariableElimination extends Bayesian_Inference_Algo {
         // normalization
         return result.fetch(List.of(query_variable), new int[]{query_value})  /  result.totalSum();
     }
+
+    //TODO: preprocessing
 }

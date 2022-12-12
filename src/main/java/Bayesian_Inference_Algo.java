@@ -24,7 +24,7 @@ public abstract class Bayesian_Inference_Algo {
     public double Query(String query) {
 
         // parsing question
-        String[] details = query.replaceAll("[=|]", ",").replace(" ", "").split(",");
+        String[] details = query.substring(2, query.length() -1).replaceAll("[=|]", ",").replace(" ", "").split(",");
 
         try {
 
@@ -62,4 +62,3 @@ public abstract class Bayesian_Inference_Algo {
 
     protected abstract double compute(BayesNode query_variable, int query_value, BayesNode[] evidence_variables, int[] evidence_values) throws KeyException;
 }
-

@@ -1,3 +1,9 @@
 # Default ignored files
 /.idea/*
 /target/*
+
+input.txt
+output.txt
+
+alarm_net.xml
+big_net.xml

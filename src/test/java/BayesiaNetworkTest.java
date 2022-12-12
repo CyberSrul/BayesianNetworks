@@ -8,8 +8,8 @@ import java.util.List;
 class BayesiaNetworkTest {
 
     static final BayesiaNetwork network = new BayesiaNetwork();
-    static final String dir1 = "src/main/resources/alarm_net.xml";
-    static final String dir2 = "src/main/resources/big_net.xml";
+    static final String dir1 = "alarm_net.xml";
+    static final String dir2 = "big_net.xml";
 
     @BeforeAll
     static void setUp() {

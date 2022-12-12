@@ -1,34 +1,57 @@
+import java.io.*;
+
 import java.security.KeyException;
+import java.text.DecimalFormat;
+
+
+/**
+ * This is the Main class from which the program will start.
+ * The program expects a txt file directory of the format:
+ * Proper Bayesian Network format XML directory
+ * than line by line
+ * Query, type of algorithm (int, 1 : naive, 2 : VE, 3 : VE with some join-order heuristic)
+ * **/
 
 public class Main {
 
+    static final BayesiaNetwork network = new BayesiaNetwork();
+    static Bayesian_Inference_Algo algo;
+    static final DecimalFormat out_format = new DecimalFormat("#.#####"); // output format
+
     public static void main(String[] args) throws KeyException {
 
-        String dir1 = "src/main/resources/alarm_net.xml";
-        String dir2 = "src/main/resources/big_net.xml";
+        try {
 
-        BayesiaNetwork network1 = new BayesiaNetwork(), network2 = new BayesiaNetwork();
-        network1.switchNetwork(dir1);
-        System.out.println(network2);
-        Bayesian_Inference_Algo naive = new Naive_Bayesian_Inference(network1);
-        System.out.println(naive.Query("B=T|J=T,M=T"));
-        System.out.println(naive.Query("J=T|B=T"));
-        System.out.println(naive.Query("A=F|"));
-        System.out.println(naive.Query("M=T|J=T,B=T"));
-        Bayesian_Inference_Algo VE = new VariableElimination(network1);
-        System.out.println(VE.Query("B=T|J=T,M=T"));
-        System.out.println(VE.Query("J=T|B=T"));
-        System.out.println(naive.Query("A=F|"));
-        System.out.println(naive.Query("M=T|J=T,B=T"));
-        network2.switchNetwork(dir2);
-        System.out.println(network1);
-        System.out.println(naive.Query("B0=v3|C3=T,B2=F,C2=v3"));
-        System.out.println(naive.Query("A2=T|C2=v1"));
-        System.out.println(naive.Query("D1=T|C2=v1,C3=F"));
-        System.out.println(VE.Query("B0=v3|C3=T,B2=F,C2=v3"));
-        System.out.println(VE.Query("A2=T|C2=v1"));
-        System.out.println(VE.Query("D1=T|C2=v1,C3=F"));
+            BufferedReader reader = new BufferedReader(new FileReader("input.txt"));
+            BufferedWriter writer = new BufferedWriter(new FileWriter("output.txt"));
+
+            // The first line should specify the xml encoding of the Bayesian Network
+            String line = reader.readLine();
+            network.switchNetwork(line);
+
+            line = reader.readLine();
+            while (line != null) {
+
+                // last character specifies the algorithm by which to answer the query
+                switch (line.charAt(line.length() -1)){
+
+                    case '1': algo = new Naive_Bayesian_Inference(network);
+                    case '2': algo = new VariableElimination(network);
+                    case '3': algo = new OptimisedVE(network);
+                }
+
+                writer.write(out_format.format((algo.Query(line.substring(0, line.length() - 2)))) + "\n");
+
+                line = reader.readLine();
+            }
+            reader.close();
+            writer.close();
+        }
+        catch (IOException e) {
+
+            e.printStackTrace();
+        }
     }
 }
 
-//TODO: parse, invoke, rounding format package, tests ( just numeric output and exceptions )
+//TODO: parse, txt based answers, complexity evaluations, join order heuristic, invoke, rounding format package, add bif_net fetch-method tests;
