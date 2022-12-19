@@ -9,6 +9,7 @@ public class BayesNode {
     private final int name;
     private final int[] range;                      // possible values of variable
     private final List<BayesNode> parents, kids;
+    private boolean marked;
     private CPT cpt;
 
     public BayesNode(int name, int[] values){
@@ -17,12 +18,15 @@ public class BayesNode {
         this.range = Arrays.copyOf(values, values.length);
         this.parents = new LinkedList<>();
         this.kids = new LinkedList<>();
+        this.marked = false;
         this.cpt = null;
     }
 
     public int getName() { return this.name; }
     public int getValue(int ind){ return this.range[ind]; }
     public int getRangeSize(){ return this.range.length; }
+    public void setMark(boolean mark){ this.marked = mark; }
+    public boolean getMark(){ return this.marked; }
 
     public void addKid(BayesNode kid){
 
@@ -47,6 +51,8 @@ public class BayesNode {
 
     public BayesNode getKid(int name){ return this.kids.stream().filter((var) -> var.getName() == name).findAny().orElse(null); }
     public BayesNode getParent(int name){ return this.parents.stream().filter((var) -> var.getName() == name).findAny().orElse(null); }
+    public List<BayesNode> getParents(){ return List.copyOf(this.parents); }
+    public List<BayesNode> getKids(){ return List.copyOf(this.kids); }
     public CPT getCPT(){ return this.cpt; }
 
     // these are the parents of this BayesNode no one is missing, all of them belong.

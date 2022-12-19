@@ -143,10 +143,19 @@ class Bayesian_Inference_Algo_Test {
         assertEquals("0.99748,31,128", naive.Query("P(A=F|)"));
         assertEquals("0.69756,7,32", naive.Query("P(M=T|J=T,B=T)"));
 
+        assertEquals("0.28417,7,16", VE.Query("P(B=T|J=T,M=T)"));
+        assertEquals("0.84902,7,12", VE.Query("P(J=T|B=T)"));
+        assertEquals("0.99748,7,12", VE.Query("P(A=F|)"));
+        assertEquals("0.69756,7,16", VE.Query("P(M=T|J=T,B=T)"));
+
         network.switchNetwork("src/main/resources/big_net.xml");
 
         Assertions.assertEquals("0.42307,383,3840", naive.Query("P(B0=v3|C3=T,B2=F,C2=v3)"));
         Assertions.assertEquals("0.0936,1535,15360", naive.Query("P(A2=T|C2=v1)"));
         Assertions.assertEquals("0.37687,767,7680", naive.Query("P(D1=T|C2=v1,C3=F)"));
+
+        Assertions.assertEquals("0.42307,24,54", VE.Query("P(B0=v3|C3=T,B2=F,C2=v3)"));
+        Assertions.assertEquals("0.0936,11,18", VE.Query("P(A2=T|C2=v1)"));
+        Assertions.assertEquals("0.37687,135,248", VE.Query("P(D1=T|C2=v1,C3=F)"));
     }
 }

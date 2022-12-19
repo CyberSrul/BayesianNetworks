@@ -5,12 +5,10 @@ import org.w3c.dom.NodeList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.*;
 
 import java.security.KeyException;
-import java.util.InputMismatchException;
-import java.util.Iterator;
+import java.util.stream.Collectors;
 
 /**
  * A Bayesian Network is a DAG that represents the joint probability distribution
@@ -125,5 +123,31 @@ public class BayesiaNetwork implements Iterable<BayesNode>{
     @Override
     public Iterator<BayesNode> iterator() {
         return variables.values().iterator();
+    }
+
+
+    /* Graph Search Algorithms */
+
+    public void clearMarks(){ variables.values().forEach((var) -> var.setMark(false)); }
+
+    public List<BayesNode> getAncestors(LinkedList<BayesNode> sources){
+
+        this.clearMarks();
+
+        int ind = 0;
+        while (ind < sources.size()){
+
+            BayesNode src = sources.get(ind);
+            src.setMark(true);
+
+            for (BayesNode parent : src.getParents()){
+
+                if (! parent.getMark()) sources.add(parent);
+                parent.setMark(true);
+            }
+
+            ++ind;
+        }
+        return variables.values().stream().filter(BayesNode::getMark).collect(Collectors.toList());
     }
 }

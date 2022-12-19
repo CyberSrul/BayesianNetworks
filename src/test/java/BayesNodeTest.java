@@ -53,6 +53,8 @@ class BayesNodeTest {
         Assertions.assertEquals(C, A.getKid(2));
         // no such kid
         Assertions.assertNull(A.getKid(3));
+
+        Assertions.assertEquals(List.of(B, C), A.getKids());
     }
 
     @Test
@@ -62,6 +64,9 @@ class BayesNodeTest {
         Assertions.assertEquals(A, C.getParent(0));
         // no such parent
         Assertions.assertNull(B.getParent(2));
+
+        Assertions.assertEquals(List.of(A), B.getParents());
+        Assertions.assertEquals(List.of(A), C.getParents());
     }
 
     @Test
@@ -89,6 +94,24 @@ class BayesNodeTest {
         Assertions.assertEquals(D, B.getParent(3));
         Assertions.assertThrows(RuntimeException.class, () -> B.addKid(D) );
         Assertions.assertThrows(RuntimeException.class, () -> B.addParent(D) );
+    }
+
+    @Test
+    void mark(){
+
+        Assertions.assertFalse(A.getMark());
+        Assertions.assertFalse(B.getMark());
+        Assertions.assertFalse(C.getMark());
+        Assertions.assertDoesNotThrow(() -> A.setMark(true));
+        Assertions.assertTrue(A.getMark());
+        Assertions.assertFalse(B.getMark());
+        Assertions.assertFalse(C.getMark());
+        Assertions.assertDoesNotThrow(() -> B.setMark(true));
+        Assertions.assertTrue(B.getMark());
+        Assertions.assertFalse(C.getMark());
+        Assertions.assertDoesNotThrow(() -> C.setMark(true));
+        Assertions.assertTrue(C.getMark());
+
     }
 
     @Test

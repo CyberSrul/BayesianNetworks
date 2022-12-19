@@ -3,6 +3,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.security.KeyException;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 class BayesiaNetworkTest {
@@ -52,5 +54,29 @@ class BayesiaNetworkTest {
         joined = joined.sum(network.getVariable("E"));
         System.out.println(joined);
         System.out.println(joined.fetch(List.of(network.getVariable("B")), new int[]{1}) / joined.totalSum());
+    }
+
+    @Test
+    void marks(){
+
+        Assertions.assertDoesNotThrow(() -> network.clearMarks());
+        for (BayesNode var : network) Assertions.assertFalse(var.getMark());
+        for (BayesNode var : network) var.setMark(true);
+        for (BayesNode var : network) Assertions.assertTrue(var.getMark());
+        Assertions.assertDoesNotThrow(() -> network.clearMarks());
+        for (BayesNode var : network) Assertions.assertFalse(var.getMark());
+    }
+
+    @Test
+    void getAncestors() throws KeyException {
+
+        Assertions.assertEquals(List.of(network.getVariable("E"), network.getVariable("B"), network.getVariable("A")),
+                                network.getAncestors(new LinkedList<>(Arrays.asList(network.getVariable("A")))));
+
+        Assertions.assertEquals(List.of(network.getVariable("E"), network.getVariable("B"), network.getVariable("A"), network.getVariable("J")),
+                network.getAncestors(new LinkedList<>(Arrays.asList(network.getVariable("J")))));
+
+        Assertions.assertEquals(List.of(network.getVariable("E"), network.getVariable("B"), network.getVariable("A"), network.getVariable("J")),
+                network.getAncestors(new LinkedList<>(Arrays.asList(network.getVariable("J"), network.getVariable("A")))));
     }
 }

@@ -194,6 +194,7 @@ public class CPT {
         double[] res_probabilities = new double[this.probabilities.length / target.getRangeSize()];
         Arrays.fill(res_probabilities, 0);
 
+        if (res_variables.size() == 0) return new CPT(this.variables.get(0), this.values[0][0], this.totalSum()); // spacial case
         CPT res = new CPT(res_variables, res_probabilities);
 
         // indexes of the remaining variables
