@@ -22,6 +22,14 @@ public class VariableElimination extends Bayesian_Inference_Algo {
 
     public VariableElimination(BayesiaNetwork network) { super(network); }
 
+    protected List<BayesNode> get_relevant_variables(BayesNode query_variable, BayesNode[] evidence_variables){
+
+        LinkedList<BayesNode> sources = new LinkedList<>(Arrays.asList(evidence_variables));
+        sources.add(query_variable);
+
+        return this.network.getAncestors(sources);
+    }
+
     protected List<CPT> generate_factors(BayesNode query_variable, BayesNode[] evidence_variables, int[] evidence_values, List<BayesNode> reverent_variables){
 
         List<CPT> factors = new LinkedList<>();
@@ -39,10 +47,7 @@ public class VariableElimination extends Bayesian_Inference_Algo {
     @Override
     protected String compute(BayesNode query_variable, int query_value, BayesNode[] evidence_variables, int[] evidence_values) throws KeyException {
 
-        LinkedList<BayesNode> sources = new LinkedList<>(Arrays.asList(evidence_variables));
-        sources.add(query_variable);
-
-        List<CPT> factors = generate_factors(query_variable, evidence_variables, evidence_values, this.network.getAncestors(sources));
+        List<CPT> factors = generate_factors(query_variable, evidence_variables, evidence_values, get_relevant_variables(query_variable, evidence_variables));
 
         int multiplications = 0, additions = 0;
 

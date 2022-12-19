@@ -50,5 +50,3 @@ public class Main {
         }
     }
 }
-
-//TODO: join order heuristic, preprocessing
