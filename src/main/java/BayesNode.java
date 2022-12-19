@@ -1,4 +1,5 @@
 import java.util.*;
+
 import java.util.stream.Collectors;
 
 /* A data oriented class representing a node in a Bayesian Network (a random variable) */
@@ -6,7 +7,7 @@ import java.util.stream.Collectors;
 public class BayesNode {
 
     private final int name;
-    private final int[] range;                    // possible values of variable
+    private final int[] range;                      // possible values of variable
     private final List<BayesNode> parents, kids;
     private CPT cpt;
 

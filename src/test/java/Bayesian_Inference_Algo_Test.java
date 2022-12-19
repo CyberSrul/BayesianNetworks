@@ -8,6 +8,7 @@ import java.util.InputMismatchException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class Bayesian_Inference_Algo_Test {
 
@@ -36,7 +37,7 @@ class Bayesian_Inference_Algo_Test {
     }
 
     @Test
-    void CostEvaluation(){
+    void EvaluateJoin(){
 
         Assertions.assertEquals(24, naive.EvaluateJoin(cpt1, cpt2));
         Assertions.assertEquals(24, VE.EvaluateJoin(cpt1, cpt2));
@@ -61,6 +62,15 @@ class Bayesian_Inference_Algo_Test {
         Assertions.assertEquals(8, naive.EvaluateJoin(cpt3, cpt2));
         Assertions.assertEquals(8, VE.EvaluateJoin(cpt3, cpt2));
         Assertions.assertEquals(8, best.EvaluateJoin(cpt3, cpt2));
+
+        // extreme case
+        Assertions.assertEquals(0, naive.EvaluateJoin(null, cpt1));
+        Assertions.assertEquals(0, naive.EvaluateJoin(cpt1, null));
+        Assertions.assertEquals(0, naive.EvaluateJoin(null, cpt2));
+        Assertions.assertEquals(0, naive.EvaluateJoin(cpt2, null));
+        Assertions.assertEquals(0, naive.EvaluateJoin(null, cpt3));
+        Assertions.assertEquals(0, naive.EvaluateJoin(cpt3, null));
+        Assertions.assertEquals(0, naive.EvaluateJoin(null, null));
     }
 
     @Test
@@ -98,43 +108,45 @@ class Bayesian_Inference_Algo_Test {
     }
 
     @Test
-    void query() throws KeyException {
+    void quick_searches() throws KeyException {
 
-        network.switchNetwork("alarm_net.xml");
+        network.switchNetwork("src/main/resources/alarm_net.xml");
 
         String example_query = "P(Q=q|E1=e1, E2=e2, E3=e3)";
         assertArrayEquals(new String[]{"Q", "q", "E1", "e1", "E2", "e2", "E3", "e3"}, example_query.substring(2, example_query.length() -1).replaceAll("[=|]", ",").replace(" ", "").split(","));
 
-        assertEquals(0.94, naive.Query("P(A=T|B=T, E=F)"));
-        assertEquals(0.94, VE.Query("P(A=T|B=T, E=F)"));
-        assertEquals(0.94, best.Query("P(A=T|B=T, E=F)"));
-        assertEquals(0.06, naive.Query("P(A=F|B=T, E=F)"));
-        assertEquals(0.06, VE.Query("P(A=F|B=T, E=F)"));
-        assertEquals(0.06, best.Query("P(A=F|B=T, E=F)"));
-        assertEquals(0.3, best.Query("P(M=F|A=T)"));
+        assertEquals("0.94,0,0", naive.Query("P(A=T|B=T, E=F)"));
+        assertEquals("0.94,0,0", VE.Query("P(A=T|B=T, E=F)"));
+        assertEquals("0.94,0,0", best.Query("P(A=T|B=T, E=F)"));
+        assertEquals("0.06,0,0", naive.Query("P(A=F|B=T, E=F)"));
+        assertEquals("0.06,0,0", VE.Query("P(A=F|B=T, E=F)"));
+        assertEquals("0.06,0,0", best.Query("P(A=F|B=T, E=F)"));
+        assertEquals("0.3,0,0", best.Query("P(M=F|A=T)"));
+
+        network.switchNetwork("src/main/resources/big_net.xml");
+
+        assertEquals("0.09,0,0", naive.Query("P(A2=T)"));
+        assertEquals("0.09,0,0", VE.Query("P(A2=T)"));
+        assertEquals("0.09,0,0", best.Query("P(A2=T)"));
+
+        assertEquals("0.24,0,0", naive.Query("P(B0=v1|A1=F)"));
+        assertEquals("0.9,0,0", naive.Query("P(D1=F|C1=T,C2=v1,C3=T,A3=T)"));
     }
 
     @Test
     void Heavy_searches() throws KeyException {
 
-        network.switchNetwork("alarm_net.xml");
+        network.switchNetwork("src/main/resources/alarm_net.xml");
 
-        assertEquals(0.28417, naive.Query("P(B=T|J=T,M=T)"), 5);
-        assertEquals(0.84902, naive.Query("P(J=T|B=T)"), 5);
-        assertEquals(0.99, naive.Query("P(A=F|)"), 2);
-        assertEquals(0.6975, naive.Query("P(M=T|J=T,B=T)"), 4);
-        assertEquals(0.28417, VE.Query("P(B=T|J=T,M=T)"), 5);
-        assertEquals(0.84902, VE.Query("P(J=T|B=T)"), 5);
-        assertEquals(0.99, VE.Query("P(A=F|)"), 2);
-        assertEquals(0.6975, VE.Query("P(M=T|J=T,B=T)"), 4);
+        assertEquals("0.28417,7,32", naive.Query("P(B=T|J=T,M=T)"));
+        assertEquals("0.84902,15,64", naive.Query("P(J=T|B=T)"));
+        assertEquals("0.99748,31,128", naive.Query("P(A=F|)"));
+        assertEquals("0.69756,7,32", naive.Query("P(M=T|J=T,B=T)"));
 
-        network.switchNetwork("big_net.xml");
+        network.switchNetwork("src/main/resources/big_net.xml");
 
-        assertEquals(0.423, naive.Query("P(B0=v3|C3=T,B2=F,C2=v3)"), 3);
-        assertEquals(0.0936, naive.Query("P(A2=T|C2=v1)"), 4);
-        assertEquals(0.37687, naive.Query("P(D1=T|C2=v1,C3=F)"), 5);
-        assertEquals(0.423, VE.Query("P(B0=v3|C3=T,B2=F,C2=v3)"), 3);
-        assertEquals(0.0936, VE.Query("P(A2=T|C2=v1)"), 4);
-        assertEquals(0.37687, VE.Query("P(D1=T|C2=v1,C3=F)"), 5);
+        Assertions.assertEquals("0.42307,383,3840", naive.Query("P(B0=v3|C3=T,B2=F,C2=v3)"));
+        Assertions.assertEquals("0.0936,1535,15360", naive.Query("P(A2=T|C2=v1)"));
+        Assertions.assertEquals("0.37687,767,7680", naive.Query("P(D1=T|C2=v1,C3=F)"));
     }
 }

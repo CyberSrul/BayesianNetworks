@@ -92,7 +92,7 @@ class BayesNodeTest {
     }
 
     @Test
-    void setCPT_fetch() {
+    void CPT_methods() {
 
         Assertions.assertDoesNotThrow(() -> A.setCPT(new double[]{0.1, 0.9}));
         System.out.println(A);
@@ -101,6 +101,7 @@ class BayesNodeTest {
         Assertions.assertDoesNotThrow(() -> C.setCPT(new double[]{0.33, 0.33, 0.33, 0.2, 0.6, 0.2}));
         System.out.println(C);
 
+        // fetch values from CPT
         Assertions.assertEquals(0.2, C.fetch(new int[]{2, 1}));
         Assertions.assertEquals(0.6, C.fetch(new int[]{1, 1}));
         Assertions.assertEquals(0.2, B.fetch(new int[]{0, 0}));

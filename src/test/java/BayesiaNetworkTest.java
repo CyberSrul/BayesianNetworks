@@ -8,15 +8,15 @@ import java.util.List;
 class BayesiaNetworkTest {
 
     static final BayesiaNetwork network = new BayesiaNetwork();
-    static final String dir1 = "alarm_net.xml";
-    static final String dir2 = "big_net.xml";
 
     @BeforeAll
     static void setUp() {
 
-        Assertions.assertDoesNotThrow(() -> network.switchNetwork(dir2));
+        Assertions.assertDoesNotThrow(() -> network.switchNetwork("src/main/resources/big_net.xml"));
         System.out.println(network);
-        Assertions.assertDoesNotThrow(() -> network.switchNetwork(dir1));
+        Assertions.assertEquals(11, network.size());
+        Assertions.assertDoesNotThrow(() -> network.switchNetwork("src/main/resources/alarm_net.xml"));
+        Assertions.assertEquals(5, network.size());
         System.out.println(network);
     }
 

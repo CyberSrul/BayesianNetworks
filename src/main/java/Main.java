@@ -1,7 +1,5 @@
 import java.io.*;
-
 import java.security.KeyException;
-import java.text.DecimalFormat;
 
 
 /**
@@ -16,7 +14,6 @@ public class Main {
 
     static final BayesiaNetwork network = new BayesiaNetwork();
     static Bayesian_Inference_Algo algo;
-    static final DecimalFormat out_format = new DecimalFormat("#.#####"); // output format
 
     public static void main(String[] args) throws KeyException {
 
@@ -35,12 +32,12 @@ public class Main {
                 // last character specifies the algorithm by which to answer the query
                 switch (line.charAt(line.length() -1)){
 
-                    case '1': algo = new Naive_Bayesian_Inference(network);
-                    case '2': algo = new VariableElimination(network);
-                    case '3': algo = new OptimisedVE(network);
+                    case '1': algo = new Naive_Bayesian_Inference(network); break;
+                    case '2': algo = new VariableElimination(network); break;
+                    case '3': algo = new OptimisedVE(network); break;
                 }
 
-                writer.write(out_format.format((algo.Query(line.substring(0, line.length() - 2)))) + "\n");
+                writer.write((algo.Query(line.substring(0, line.length() - 2))) + "\n");
 
                 line = reader.readLine();
             }
@@ -54,4 +51,4 @@ public class Main {
     }
 }
 
-//TODO: complexity evaluations, join order heuristic, add big_net fetch-method tests;
+//TODO: join order heuristic, preprocessing

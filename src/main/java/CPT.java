@@ -1,6 +1,8 @@
-import java.util.Arrays;
 import java.util.InputMismatchException;
+
+import java.util.Arrays;
 import java.util.List;
+
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -19,11 +21,16 @@ public class CPT {
 
     public List<BayesNode> getVariables() { return List.copyOf(this.variables); }
 
+    public double[] getProbabilities(){ return Arrays.copyOf(this.probabilities, this.probabilities.length); }
+
     // the CPT holds values that vary with this one
     public boolean refersTo(BayesNode variable){ return this.variables.contains(variable); }
 
     // this tables share of the sample spase (probability wise)
     public double totalSum(){ return Arrays.stream(this.probabilities).sum(); }
+
+    // how many rows
+    public int size(){ return probabilities.length; }
 
     // get value of specific row
     public double fetch(List<BayesNode> variables, int[] values){
@@ -51,6 +58,7 @@ public class CPT {
 
         if (variables.size() == 0){ throw new InputMismatchException("variables list can not be empty"); }
 
+        // deep copy
         this.variables = List.copyOf(variables);
         this.probabilities = Arrays.copyOf(probabilities, probabilities.length);
 
@@ -82,7 +90,7 @@ public class CPT {
 
     public CPT join (CPT other){
 
-        if (other == null) return new CPT(this.variables, this.probabilities);
+        if (other == null) return this;
 
         return new CPT(this, other);
     }
@@ -94,7 +102,7 @@ public class CPT {
         // inclusion exclusion
         this.variables = Stream.concat(cpt2.variables.stream(), diff.stream()).collect(Collectors.toList());
         // size of table
-        int size = variables.stream().mapToInt(BayesNode::getRangeSize).reduce(1, (x, y) -> x * y);
+        int size = this.variables.stream().mapToInt(BayesNode::getRangeSize).reduce(1, (x, y) -> x * y);
         this.probabilities = new double[size];
         this.values = new int[this.variables.size()][size];
 
@@ -160,14 +168,16 @@ public class CPT {
             if (match){ probabilities[prob_ind] = this.probabilities[val_ind]; ++prob_ind; }
         }
         // finally returning a table of all relevant data (what's not evident)
+        // spacial case
         if (probabilities.length == 1){ return new CPT(evidence_nodes.get(0), evidence_values[0], probabilities[0]); }
+        // general case
         return new CPT(this.variables.stream().filter((var) -> ! evidence_nodes.contains(var)).collect(Collectors.toList()), probabilities);
     }
 
     // A CPT that was reduced to one row
     private CPT(BayesNode variable, int value, double probability){
 
-        this.variables = List.of(variable);
+        this.variables = List.of(new BayesNode(variable.getName(), new int[]{value}));
         this.values = new int[1][1]; this.values[0][0] = value;
         this.probabilities = new double[]{probability};
     }

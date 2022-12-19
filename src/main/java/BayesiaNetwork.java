@@ -113,11 +113,14 @@ public class BayesiaNetwork implements Iterable<BayesNode>{
 
     public String toString(){ return variables.values().stream().map(BayesNode::toString).reduce("", (s1, s2) -> s1 + s2); }
 
-    // interface methods
+    /* interface methods */
+
+    public int size(){ return variables.size(); }
+
     public int translate(String name) throws KeyException { return dict.translate(name); }
     public BayesNode getVariable(String name) throws KeyException { return variables.get(this.translate(name)); }
-    public Iterator<String> getNames(){ return dict.iterator(); }
 
+    public Iterator<String> getNames(){ return dict.iterator(); }
     // unless the input xml is formatted incorrectly, this is topologically ordered
     @Override
     public Iterator<BayesNode> iterator() {

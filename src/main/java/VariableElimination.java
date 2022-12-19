@@ -41,9 +41,11 @@ public class VariableElimination extends Bayesian_Inference_Algo {
     }
 
     @Override
-    protected double compute(BayesNode query_variable, int query_value, BayesNode[] evidence_variables, int[] evidence_values) throws KeyException {
+    protected String compute(BayesNode query_variable, int query_value, BayesNode[] evidence_variables, int[] evidence_values) throws KeyException {
 
         List<CPT> factors = generate_factors(query_variable, evidence_variables, evidence_values);
+
+        int multiplications = 0, additions = 0;
 
         for (Iterator<String> it = this.network.getNames(); it.hasNext();) {
 
@@ -51,10 +53,21 @@ public class VariableElimination extends Bayesian_Inference_Algo {
             if (current_variable == null ) continue;
 
             // joining
-            CPT joined_factors = factors.stream().filter((fact) -> fact.refersTo(current_variable)).reduce(CPT::join).orElse(null);
+            List<CPT> relevant_variables = factors.stream().filter((fact) -> fact.refersTo(current_variable)).collect(Collectors.toList());
+            CPT joined_factors = null;
+            for (CPT factor : relevant_variables){
+
+                multiplications += EvaluateJoin(joined_factors, factor);
+                joined_factors = factor.join(joined_factors);
+            }
+
             if (joined_factors == null) continue;
             // summing up
-            if (current_variable != query_variable) { joined_factors =  joined_factors.sum(current_variable); }
+            if (current_variable != query_variable) {
+
+                additions += EvaluateSum(joined_factors, current_variable);
+                joined_factors =  joined_factors.sum(current_variable);
+            }
             // get rid of old factors
             factors = factors.stream().filter((cpt -> ! cpt.refersTo(current_variable))).collect(Collectors.toList());
             // remember the new joined factor though
@@ -63,7 +76,17 @@ public class VariableElimination extends Bayesian_Inference_Algo {
 
         CPT result = factors.get(factors.size() -1);
         // normalization
-        return result.fetch(List.of(query_variable), new int[]{query_value})  /  result.totalSum();
+        ++additions;
+        return out_format.format(result.fetch(List.of(query_variable), new int[]{query_value})  /  result.totalSum()) + "," + additions + "," + multiplications;
+    }
+
+    public static void main(String[] args) throws KeyException {
+
+        BayesiaNetwork network = new BayesiaNetwork();
+        network.switchNetwork("alarm_net.xml");
+        Bayesian_Inference_Algo VE = new VariableElimination(network);
+
+        System.out.println(VE.Query("P(B=T|J=T,M=T)"));
     }
 
     //TODO: preprocessing

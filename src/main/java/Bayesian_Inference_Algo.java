@@ -2,7 +2,10 @@ import java.security.KeyException;
 import java.util.InputMismatchException;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.IntStream;
+
+import java.text.DecimalFormat;
 
 /**
  * An abstract class for implementing different Bayesian Inference algorithms on top a Bayesian Network.
@@ -15,13 +18,15 @@ import java.util.stream.IntStream;
 public abstract class Bayesian_Inference_Algo {
 
     protected final BayesiaNetwork network;
+    static final DecimalFormat out_format = new DecimalFormat("#.#####"); // output format
 
     public Bayesian_Inference_Algo(BayesiaNetwork network) { this.network = network; }
 
     /**
      * Expected query format P(Q=q|E1=e1, E2=e2,..., Ek=ek)
+     * Expected output format #.#####,number of additions,number of multiplications
      **/
-    public double Query(String query) {
+    public String Query(String query) {
 
         // parsing question
         String[] details = query.substring(2, query.length() -1).replaceAll("[=|]", ",").replace(" ", "").split(",");
@@ -50,7 +55,9 @@ public abstract class Bayesian_Inference_Algo {
             // if the evidence are the query's parents
             if (query_variable.AreParents(Arrays.asList(evidence_variables))){
                 // then I don't need to call any algorithm
-                return query_variable.fetch(IntStream.concat(IntStream.of(query_value), Arrays.stream(evidence_values)).toArray());
+                // arranging the values array correctly
+                sortByParents(query_variable, evidence_variables, evidence_values);
+                return query_variable.fetch(IntStream.concat(IntStream.of(query_value), Arrays.stream(evidence_values)).toArray()) + ",0,0";
             }
 
             return this.compute(query_variable, query_value, evidence_variables, evidence_values);
@@ -60,11 +67,33 @@ public abstract class Bayesian_Inference_Algo {
         }
     }
 
-    protected abstract double compute(BayesNode query_variable, int query_value, BayesNode[] evidence_variables, int[] evidence_values) throws KeyException;
+    private void sortByParents(BayesNode query_variable, BayesNode[] evidence_variables, int[] values){
+
+        List<BayesNode> parents_order = query_variable.getCPT().getVariables().subList(1, evidence_variables.length +1);
+
+        for (int ind = 0; ind < evidence_variables.length; ++ind){
+
+           int proper_loc = parents_order.indexOf(evidence_variables[ind]);
+
+           // swapping
+
+           BayesNode tmp_var = evidence_variables[ind];
+           evidence_variables[ind] = evidence_variables[proper_loc];
+           evidence_variables[proper_loc] = tmp_var;
+
+           int tmp_val = values[ind];
+           values[ind] = values[proper_loc];
+           values[proper_loc] = tmp_val;
+        }
+    }
+
+    protected abstract String compute(BayesNode query_variable, int query_value, BayesNode[] evidence_variables, int[] evidence_values) throws KeyException;
 
     // method for evaluating the cost of a join operation between 2 given CPTs
     // that is, how many multiplications
     public int EvaluateJoin(CPT cpt1, CPT cpt2){
+
+        if (cpt1 == null || cpt2 == null) return  0;
 
         int cpt1_ranges = cpt1.getVariables().stream().mapToInt(BayesNode::getRangeSize).reduce(1, (x, y) -> x * y);
         // value-ranges of the variables of cpt2 without those of cpt1
@@ -81,7 +110,4 @@ public abstract class Bayesian_Inference_Algo {
 
         return cpt.getVariables().stream().filter((var) -> var != eliminated).mapToInt(BayesNode::getRangeSize).reduce(1, (x, y) -> x * y)  *  (eliminated.getRangeSize() -1);
     }
-
-
-    //TODO: incorporate cost evaluation, stream the factors
 }

@@ -33,10 +33,24 @@ class CPTTest {
     }
 
     @Test
+    void size(){
+
+        Assertions.assertEquals(12, cpt1.size());
+        Assertions.assertEquals(8, cpt2.size());
+    }
+
+    @Test
     void getVariables(){
 
-        Assertions.assertTrue(List.of(A, B, C).equals(cpt1.getVariables()));
-        Assertions.assertTrue(List.of(B, A, D).equals(cpt2.getVariables()));
+        Assertions.assertEquals(List.of(A, B, C), cpt1.getVariables());
+        Assertions.assertEquals(List.of(B, A, D), cpt2.getVariables());
+    }
+
+    @Test
+    void getProbabilities(){
+
+        Assertions.assertArrayEquals(probabilities1, cpt1.getProbabilities());
+        Assertions.assertArrayEquals(probabilities2, cpt2.getProbabilities());
     }
 
     @Test
