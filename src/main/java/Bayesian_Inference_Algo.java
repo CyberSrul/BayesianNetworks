@@ -18,7 +18,7 @@ import java.text.DecimalFormat;
 public abstract class Bayesian_Inference_Algo {
 
     protected final BayesiaNetwork network;
-    static final DecimalFormat out_format = new DecimalFormat("#.#####"); // output format
+    static final DecimalFormat out_format = new DecimalFormat("0.00000"); // output format
 
     public Bayesian_Inference_Algo(BayesiaNetwork network) { this.network = network; }
 
