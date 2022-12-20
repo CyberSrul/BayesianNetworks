@@ -1,0 +1,13 @@
+net9.xml
+P(S=T|C=F),1
+P(S=T|C=F),2
+P(S=T|C=F),3
+P(S=T|C=F,W=F),1
+P(S=T|C=F,W=F),2
+P(S=T|C=F,W=F),3
+P(S=T|W=T),1
+P(S=T|W=T),2
+P(S=T|W=T),3
+P(R=F|S=T,W=F),1
+P(R=F|S=T,W=F),2
+P(R=F|S=T,W=F),3

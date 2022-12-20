@@ -1,0 +1,13 @@
+net10.xml
+P(R=T|S=T),1
+P(R=T|S=T),2
+P(R=T|S=T),3
+P(R=F|S=T),1
+P(R=F|S=T),2
+P(R=F|S=T),3
+P(S=T|G=T),1
+P(S=T|G=T),2
+P(S=T|G=T),3
+P(G=F|R=F),1
+P(G=F|R=F),2
+P(G=F|R=F),3

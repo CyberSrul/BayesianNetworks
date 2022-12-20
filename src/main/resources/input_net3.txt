@@ -1,0 +1,16 @@
+net3.xml
+P(M=Y|F=nice),1
+P(M=Y|F=nice),2
+P(M=Y|F=nice),3
+P(M=Y|F=nice,S=bad),1
+P(M=Y|F=nice,S=bad),2
+P(M=Y|F=nice,S=bad),3
+P(M=F|S=good),1
+P(M=F|S=good),2
+P(M=F|S=good),3
+P(F=nice|N=T),1
+P(F=nice|N=T),2
+P(F=nice|N=T),3
+P(F=boring|S=ok),1
+P(F=boring|S=ok),2
+P(F=boring|S=ok),3

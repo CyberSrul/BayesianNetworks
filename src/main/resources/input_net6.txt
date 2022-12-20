@@ -1,0 +1,10 @@
+net6.xml
+P(C=run|B=set,A=T),1
+P(C=run|B=set,A=T),2
+P(C=run|B=set,A=T),3
+P(A=T|C=run),1
+P(A=T|C=run),2
+P(A=T|C=run),3
+P(A=F|C=stay),1
+P(A=F|C=stay),2
+P(A=F|C=stay),3
