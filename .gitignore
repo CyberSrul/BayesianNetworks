@@ -5,4 +5,5 @@
 input.txt
 output.txt
 
-[a-zA-Z]*_net[0-9]?.xml
+*.xml
+!pom.xml
