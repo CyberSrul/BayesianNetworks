@@ -5,5 +5,4 @@
 input.txt
 output.txt
 
-alarm_net.xml
-big_net.xml
+[a-zA-Z]*_net[0-9]?.xml
